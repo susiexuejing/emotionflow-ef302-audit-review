@@ -45,3 +45,21 @@ test('fixed errors do not include supplied bytes or binding values', () => {
   assert.throws(()=>checkPackageBytes(parts,digests),
     e=>e.message==='Package integrity check failed');
 });
+
+test('proxy trap and revoked proxy errors are replaced with the fixed error', () => {
+  const safe = e => e.message === 'Package integrity check failed' && !Object.hasOwn(e, 'cause');
+  for (const target of ['parts', 'digests']) {
+    for (const trap of ['getPrototypeOf', 'ownKeys', 'getOwnPropertyDescriptor', 'get']) {
+      const f = fixture();
+      f[target] = new Proxy(f[target], {
+        [trap]() { throw new Error('synthetic-private-marker'); }
+      });
+      assert.throws(() => checkPackageBytes(f.parts, f.digests), safe);
+    }
+    const f = fixture();
+    const revoked = Proxy.revocable(f[target], {});
+    revoked.revoke();
+    f[target] = revoked.proxy;
+    assert.throws(() => checkPackageBytes(f.parts, f.digests), safe);
+  }
+});
