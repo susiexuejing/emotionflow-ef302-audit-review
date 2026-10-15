@@ -22,6 +22,7 @@ const sha = bytes => 'sha256:' + createHash('sha256').update(bytes).digest('hex'
  * cloud configuration, permission, private route, cost cap or one-run control.
  */
 export function checkPackageBytes(parts, reviewedDigests) {
+  try {
   exact(parts, PARTS);
   exact(reviewedDigests, PARTS);
   for (const name of PARTS) {
@@ -30,6 +31,10 @@ export function checkPackageBytes(parts, reviewedDigests) {
     if (!Buffer.isBuffer(bytes) || bytes.length === 0 ||
         typeof expected !== 'string' || !/^sha256:[0-9a-f]{64}$/.test(expected) ||
         sha(bytes) !== expected) fail();
+  }
+  } catch {
+    // Never propagate caller-controlled exceptions or attach their cause.
+    fail();
   }
   return Object.freeze({integrity: 'matched', execution_authorized: false});
 }
