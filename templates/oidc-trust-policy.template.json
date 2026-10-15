@@ -1,0 +1,17 @@
+{
+  "Version": "<POLICY_VERSION_PLACEHOLDER>",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": { "Federated": "<OIDC_PROVIDER_PLACEHOLDER>" },
+      "Action": ["<ASSUME_ROLE_ACTION_PLACEHOLDER>"],
+      "Condition": {
+        "StringEquals": {
+          "<ISSUER_CLAIM_KEY>": "<EXPECTED_ISSUER>",
+          "<AUDIENCE_CLAIM_KEY>": "<EXPECTED_AUDIENCE>",
+          "<SUBJECT_CLAIM_KEY>": "<EXACT_PROTECTED_ENVIRONMENT_SUBJECT>"
+        }
+      }
+    }
+  ]
+}
